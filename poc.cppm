@@ -63,6 +63,21 @@ public:
     m_data(0, 1) = t;
   }
 
+  [[nodiscard]] constexpr bool can_be_left_of(const pattern &o) const noexcept {
+    for (auto i = 0; i < ps; i++) {
+      if (m_data(ps - 1, i) != o.m_data(0, i))
+        return false;
+    }
+    return true;
+  }
+  [[nodiscard]] constexpr bool can_be_top_of(const pattern &o) const noexcept {
+    for (auto i = 0; i < ps; i++) {
+      if (m_data(i, ps - 1) != o.m_data(i, 0))
+        return false;
+    }
+    return true;
+  }
+
   inline void log() const {
     silog::log(silog::info, "probability: %f", m_prob);
     m_data.log(1);
@@ -84,6 +99,7 @@ public:
     return m_pats[p];
   }
 
+  [[nodiscard]] constexpr auto size() const noexcept { return m_count; }
   [[nodiscard]] constexpr auto *begin() const noexcept { return &m_pats[0]; }
   [[nodiscard]] constexpr auto *end() const noexcept {
     return &m_pats[m_count];
@@ -137,5 +153,14 @@ extern "C" int main() {
 
   for (const auto &p : pats) {
     p.log();
+  }
+  for (auto a = 0; a < pats.size(); a++) {
+    for (auto b = 0; b < pats.size(); b++) {
+      bool l = (pats[a].can_be_left_of(pats[b]));
+      bool y = (pats[a].can_be_top_of(pats[b]));
+      if (l || y)
+        silog::log(silog::debug, "%d can be %s %s of %d", a, (l ? "left" : ""),
+                   (y ? "top" : ""), b);
+    }
   }
 }
