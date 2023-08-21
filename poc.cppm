@@ -41,10 +41,10 @@ public:
   }
   [[nodiscard]] constexpr auto &probability() noexcept { return m_prob; }
 
-  constexpr void set_row(unsigned y, const char (&s)[4]) {
-    m_data(0, y) = s[0];
-    m_data(1, y) = s[1];
-    m_data(2, y) = s[2];
+  constexpr void set_row(unsigned y, const char (&s)[ps + 1]) {
+    for (auto x = 0; x < ps; x++) {
+      m_data(x, y) = s[x];
+    }
   }
 
   inline void log() const {
@@ -56,11 +56,21 @@ class pat_list {
   static constexpr const auto max_pats = 256;
 
   pattern m_pats[max_pats];
+  unsigned m_count{};
 
 public:
-  [[nodiscard]] constexpr auto &operator[](unsigned p) { return m_pats[p]; }
+  [[nodiscard]] constexpr auto &operator[](unsigned p) {
+    if (p >= m_count)
+      m_count = p + 1;
+    return m_pats[p];
+  }
   [[nodiscard]] constexpr const auto &operator[](unsigned p) const {
     return m_pats[p];
+  }
+
+  [[nodiscard]] constexpr auto *begin() const noexcept { return &m_pats[0]; }
+  [[nodiscard]] constexpr auto *end() const noexcept {
+    return &m_pats[m_count];
   }
 };
 
@@ -101,8 +111,7 @@ extern "C" int main() {
   map m{};
   m.log();
 
-  pats[0].log();
-  pats[1].log();
-  pats[2].log();
-  pats[3].log();
+  for (const auto &p : pats) {
+    p.log();
+  }
 }
