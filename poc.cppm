@@ -33,11 +33,13 @@ static constexpr const auto ps = 3;
 
 class pattern {
   char_map<ps, ps> m_data{};
+  float m_prob{};
 
 public:
   [[nodiscard]] constexpr auto &operator()(unsigned x, unsigned y) {
     return m_data(x, y);
   }
+  [[nodiscard]] constexpr auto &probability() noexcept { return m_prob; }
 
   constexpr void set_row(unsigned y, const char (&s)[4]) {
     m_data(0, y) = s[0];
@@ -45,7 +47,10 @@ public:
     m_data(2, y) = s[2];
   }
 
-  inline void log() const { m_data.log(1); }
+  inline void log() const {
+    silog::log(silog::info, "probability: %f", m_prob);
+    m_data.log(1);
+  }
 };
 
 class map {
@@ -55,11 +60,12 @@ public:
   inline void log() const { m_data.log(2); }
 };
 
-constexpr auto p0 = [] {
+constexpr const auto p0 = [] {
   pattern p{};
   p.set_row(0, "   ");
   p.set_row(1, " ..");
   p.set_row(2, " ..");
+  p.probability() = 1.f;
   return p;
 }();
 
