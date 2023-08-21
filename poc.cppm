@@ -47,6 +47,22 @@ public:
     }
   }
 
+  constexpr void rotate() noexcept {
+    static_assert(ps == 3);
+
+    auto t = m_data(0, 0);
+    m_data(0, 0) = m_data(2, 0);
+    m_data(2, 0) = m_data(2, 2);
+    m_data(2, 2) = m_data(0, 2);
+    m_data(0, 2) = t;
+
+    t = m_data(1, 0);
+    m_data(1, 0) = m_data(2, 1);
+    m_data(2, 1) = m_data(1, 2);
+    m_data(1, 2) = m_data(0, 1);
+    m_data(0, 1) = t;
+  }
+
   inline void log() const {
     silog::log(silog::info, "probability: %f", m_prob);
     m_data.log(1);
@@ -103,6 +119,14 @@ constexpr const auto pats = [] {
   p[3].set_row(1, "   ");
   p[3].set_row(2, "   ");
   p[3].probability() = 1.f;
+
+  (p[4] = p[0]).rotate();
+  (p[5] = p[4]).rotate();
+  (p[6] = p[5]).rotate();
+
+  (p[7] = p[1]).rotate();
+  (p[8] = p[7]).rotate();
+  (p[9] = p[8]).rotate();
 
   return p;
 }();
