@@ -1,12 +1,6 @@
 export module poc;
 import silog;
 
-static constexpr const auto w = 32;
-static constexpr const auto h = 24;
-static constexpr const auto ps = 3;
-
-inline void log_row(char *row, unsigned y, unsigned yw, unsigned ys) {}
-
 template <unsigned W, unsigned H> class char_map {
   char m_data[H][W];
 
@@ -20,8 +14,9 @@ public:
   }
 
   [[nodiscard]] constexpr auto &operator()(unsigned x, unsigned y) {
-    silog::assert(x >= 0 && x < ps, "x out-of-bounds in char map modification");
-    silog::assert(y >= 0 && y < ps, "y out-of-bounds in char map modification");
+    return m_data[y][x];
+  }
+  [[nodiscard]] constexpr auto operator()(unsigned x, unsigned y) const {
     return m_data[y][x];
   }
 
@@ -32,12 +27,22 @@ public:
   }
 };
 
+static constexpr const auto w = 32;
+static constexpr const auto h = 24;
+static constexpr const auto ps = 3;
+
 class pattern {
   char_map<ps, ps> m_data{};
 
 public:
   [[nodiscard]] constexpr auto &operator()(unsigned x, unsigned y) {
     return m_data(x, y);
+  }
+
+  constexpr void set_row(unsigned y, const char (&s)[4]) {
+    m_data(0, y) = s[0];
+    m_data(1, y) = s[1];
+    m_data(2, y) = s[2];
   }
 
   inline void log() const { m_data.log(1); }
@@ -50,11 +55,17 @@ public:
   inline void log() const { m_data.log(2); }
 };
 
+constexpr auto p0 = [] {
+  pattern p{};
+  p.set_row(0, "   ");
+  p.set_row(1, " ..");
+  p.set_row(2, " ..");
+  return p;
+}();
+
 extern "C" int main() {
   map m{};
   m.log();
 
-  pattern p{};
-  p(1, 1) = 'X';
-  p.log();
+  p0.log();
 }
