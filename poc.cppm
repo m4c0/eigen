@@ -52,6 +52,17 @@ public:
     m_data.log(1);
   }
 };
+class pat_list {
+  static constexpr const auto max_pats = 256;
+
+  pattern m_pats[max_pats];
+
+public:
+  [[nodiscard]] constexpr auto &operator[](unsigned p) { return m_pats[p]; }
+  [[nodiscard]] constexpr const auto &operator[](unsigned p) const {
+    return m_pats[p];
+  }
+};
 
 class map {
   char_map<w, h> m_data;
@@ -60,12 +71,29 @@ public:
   inline void log() const { m_data.log(2); }
 };
 
-constexpr const auto p0 = [] {
-  pattern p{};
-  p.set_row(0, "   ");
-  p.set_row(1, " ..");
-  p.set_row(2, " ..");
-  p.probability() = 1.f;
+constexpr const auto pats = [] {
+  pat_list p{};
+
+  p[0].set_row(0, "   ");
+  p[0].set_row(1, " ..");
+  p[0].set_row(2, " ..");
+  p[0].probability() = 1.f;
+
+  p[1].set_row(0, " ..");
+  p[1].set_row(1, " ..");
+  p[1].set_row(2, " ..");
+  p[1].probability() = 1.f;
+
+  p[2].set_row(0, "...");
+  p[2].set_row(1, "...");
+  p[2].set_row(2, "...");
+  p[2].probability() = 1.f;
+
+  p[3].set_row(0, "   ");
+  p[3].set_row(1, "   ");
+  p[3].set_row(2, "   ");
+  p[3].probability() = 1.f;
+
   return p;
 }();
 
@@ -73,5 +101,8 @@ extern "C" int main() {
   map m{};
   m.log();
 
-  p0.log();
+  pats[0].log();
+  pats[1].log();
+  pats[2].log();
+  pats[3].log();
 }
