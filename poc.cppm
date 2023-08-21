@@ -5,52 +5,49 @@ static constexpr const auto w = 32;
 static constexpr const auto h = 24;
 static constexpr const auto ps = 3;
 
-inline void log_row(char *row, unsigned y, unsigned yw, unsigned ys) {
-  silog::log(silog::info, "%.*d: [%.*s]", ys, y + 1, yw, row);
-}
+inline void log_row(char *row, unsigned y, unsigned yw, unsigned ys) {}
 
-class pattern {
-  char m_data[ps][ps]{};
+template <unsigned W, unsigned H> class char_map {
+  char m_data[H][W];
 
 public:
-  pattern() {
-    for (auto y = 0; y < ps; y++) {
-      for (auto x = 0; x < ps; x++) {
+  constexpr char_map() {
+    for (auto y = 0; y < H; y++) {
+      for (auto x = 0; x < W; x++) {
         m_data[y][x] = ' ';
       }
     }
   }
 
   [[nodiscard]] constexpr auto &operator()(unsigned x, unsigned y) {
-    silog::assert(x >= 0 && x < ps, "x out-of-bounds in pattern modification");
-    silog::assert(y >= 0 && y < ps, "y out-of-bounds in pattern modification");
+    silog::assert(x >= 0 && x < ps, "x out-of-bounds in char map modification");
+    silog::assert(y >= 0 && y < ps, "y out-of-bounds in char map modification");
     return m_data[y][x];
   }
 
-  inline void log() {
-    for (auto y = 0; y < ps; y++) {
-      log_row(m_data[y], y, ps, 1);
+  inline void log(unsigned y_cols) const {
+    for (auto y = 0; y < H; y++) {
+      silog::log(silog::info, "%.*d: [%.*s]", y_cols, y + 1, W, m_data[y]);
     }
   }
 };
 
-class map {
-  char m_data[h][w]{};
+class pattern {
+  char_map<ps, ps> m_data{};
 
 public:
-  map() {
-    for (auto y = 0; y < h; y++) {
-      for (auto x = 0; x < w; x++) {
-        m_data[y][x] = ' ';
-      }
-    }
+  [[nodiscard]] constexpr auto &operator()(unsigned x, unsigned y) {
+    return m_data(x, y);
   }
 
-  inline void log() {
-    for (auto y = 0; y < h; y++) {
-      log_row(m_data[y], y, w, 3);
-    }
-  }
+  inline void log() const { m_data.log(1); }
+};
+
+class map {
+  char_map<w, h> m_data;
+
+public:
+  inline void log() const { m_data.log(2); }
 };
 
 extern "C" int main() {
