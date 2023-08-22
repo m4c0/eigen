@@ -1,28 +1,30 @@
 export module poc;
+import hai;
 import silog;
 
-template <unsigned W, unsigned H> class char_map {
-  char m_data[H][W];
+class char_map {
+  unsigned m_width;
+  unsigned m_height;
+  hai::varray<char> m_data{m_width * m_height};
 
 public:
-  constexpr char_map() {
-    for (auto y = 0; y < H; y++) {
-      for (auto x = 0; x < W; x++) {
-        m_data[y][x] = ' ';
-      }
+  constexpr char_map(unsigned w, unsigned h) : m_width{w}, m_height{h} {
+    for (auto &c : m_data) {
+      c = ' ';
     }
   }
 
   [[nodiscard]] constexpr auto &operator()(unsigned x, unsigned y) {
-    return m_data[y][x];
+    return m_data[y * m_width + x];
   }
   [[nodiscard]] constexpr auto operator()(unsigned x, unsigned y) const {
-    return m_data[y][x];
+    return m_data[y * m_width + x];
   }
 
   inline void log(unsigned y_cols) const {
-    for (auto y = 0; y < H; y++) {
-      silog::log(silog::info, "%.*d: [%.*s]", y_cols, y + 1, W, m_data[y]);
+    for (auto y = 0; y < m_height; y++) {
+      silog::log(silog::info, "%.*d: [%.*s]", y_cols, y + 1, m_width,
+                 &m_data[y * m_width]);
     }
   }
 };
@@ -30,55 +32,53 @@ public:
 class pattern {
   static constexpr const auto ps = 3;
 
-  char_map<ps, ps> m_data{};
+  char m_data[ps][ps]{};
   float m_prob{};
 
 public:
   [[nodiscard]] constexpr auto &operator()(unsigned x, unsigned y) {
-    return m_data(x, y);
+    return m_data[y][x];
+  }
+  [[nodiscard]] constexpr auto operator()(unsigned x, unsigned y) const {
+    return m_data[y][x];
   }
   [[nodiscard]] constexpr auto &probability() noexcept { return m_prob; }
 
   constexpr void set_row(unsigned y, const char (&s)[ps + 1]) {
     for (auto x = 0; x < ps; x++) {
-      m_data(x, y) = s[x];
+      (*this)(x, y) = s[x];
     }
   }
 
   constexpr void rotate() noexcept {
     static_assert(ps == 3);
 
-    auto t = m_data(0, 0);
-    m_data(0, 0) = m_data(2, 0);
-    m_data(2, 0) = m_data(2, 2);
-    m_data(2, 2) = m_data(0, 2);
-    m_data(0, 2) = t;
+    auto t = (*this)(0, 0);
+    (*this)(0, 0) = (*this)(2, 0);
+    (*this)(2, 0) = (*this)(2, 2);
+    (*this)(2, 2) = (*this)(0, 2);
+    (*this)(0, 2) = t;
 
-    t = m_data(1, 0);
-    m_data(1, 0) = m_data(2, 1);
-    m_data(2, 1) = m_data(1, 2);
-    m_data(1, 2) = m_data(0, 1);
-    m_data(0, 1) = t;
+    t = (*this)(1, 0);
+    (*this)(1, 0) = (*this)(2, 1);
+    (*this)(2, 1) = (*this)(1, 2);
+    (*this)(1, 2) = (*this)(0, 1);
+    (*this)(0, 1) = t;
   }
 
   [[nodiscard]] constexpr bool can_be_left_of(const pattern &o) const noexcept {
     for (auto i = 0; i < ps; i++) {
-      if (m_data(ps - 1, i) != o.m_data(0, i))
+      if ((*this)(ps - 1, i) != o(0, i))
         return false;
     }
     return true;
   }
   [[nodiscard]] constexpr bool can_be_top_of(const pattern &o) const noexcept {
     for (auto i = 0; i < ps; i++) {
-      if (m_data(i, ps - 1) != o.m_data(i, 0))
+      if ((*this)(i, ps - 1) != o(i, 0))
         return false;
     }
     return true;
-  }
-
-  inline void log() const {
-    silog::log(silog::info, "probability: %f", m_prob);
-    m_data.log(1);
   }
 };
 class pat_list {
@@ -102,19 +102,13 @@ public:
   [[nodiscard]] constexpr auto *end() const noexcept {
     return &m_pats[m_count];
   }
-
-  inline void log() const {
-    for (const auto &p : *this) {
-      p.log();
-    }
-  }
 };
 
 class map {
   static constexpr const auto w = 32;
   static constexpr const auto h = 24;
 
-  char_map<w, h> m_data;
+  char_map m_data{w, h};
 
 public:
   inline void log() const { m_data.log(2); }
