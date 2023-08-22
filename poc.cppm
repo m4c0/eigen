@@ -3,8 +3,6 @@ import eigen;
 import rng;
 import silog;
 
-extern "C" int putchar(char);
-
 using namespace eigen;
 
 class map {
@@ -32,12 +30,26 @@ public:
       m_data.log(2);
       return;
     }
+
+    char_map exp{w * 3, h * 3};
+    unsigned x = 0;
+    unsigned y = 0;
     for (auto row : m_data) {
       for (auto col : row) {
-        putchar(col);
+        if (col != ' ') {
+          auto &p = (*m_pats)[col - '0'];
+          for (auto dy = 0; dy < 3; dy++) {
+            for (auto dx = 0; dx < 3; dx++) {
+              exp(x + dx, y + dy) = p(dx, dy);
+            }
+          }
+        }
+        x += 3;
       }
-      putchar('\n');
+      x = 0;
+      y += 3;
     }
+    exp.log(3);
   }
 };
 
