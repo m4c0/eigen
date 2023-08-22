@@ -104,6 +104,12 @@ public:
   [[nodiscard]] constexpr auto *end() const noexcept {
     return &m_pats[m_count];
   }
+
+  inline void log() const {
+    for (const auto &p : *this) {
+      p.log();
+    }
+  }
 };
 
 class map {
@@ -147,13 +153,7 @@ constexpr const auto pats = [] {
   return p;
 }();
 
-extern "C" int main() {
-  map m{};
-  m.log();
-
-  for (const auto &p : pats) {
-    p.log();
-  }
+void dump_possible_connections() {
   for (auto a = 0; a < pats.size(); a++) {
     for (auto b = 0; b < pats.size(); b++) {
       bool l = (pats[a].can_be_left_of(pats[b]));
@@ -163,4 +163,11 @@ extern "C" int main() {
                    (y ? "top" : ""), b);
     }
   }
+}
+
+extern "C" int main() {
+  map m{};
+  m.log();
+
+  pats.log();
 }
