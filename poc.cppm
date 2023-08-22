@@ -27,11 +27,9 @@ public:
   }
 };
 
-static constexpr const auto w = 32;
-static constexpr const auto h = 24;
-static constexpr const auto ps = 3;
-
 class pattern {
+  static constexpr const auto ps = 3;
+
   char_map<ps, ps> m_data{};
   float m_prob{};
 
@@ -113,6 +111,9 @@ public:
 };
 
 class map {
+  static constexpr const auto w = 32;
+  static constexpr const auto h = 24;
+
   char_map<w, h> m_data;
 
 public:
@@ -168,6 +169,4 @@ void dump_possible_connections() {
 extern "C" int main() {
   map m{};
   m.log();
-
-  pats.log();
 }
