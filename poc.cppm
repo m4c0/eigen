@@ -3,6 +3,8 @@ import eigen;
 import rng;
 import silog;
 
+extern "C" int putchar(char);
+
 using namespace eigen;
 
 class map {
@@ -15,6 +17,9 @@ class map {
 public:
   explicit map(const pat_list *p) : m_pats{p} {}
 
+  [[nodiscard]] constexpr auto begin() const { return m_data.begin(); }
+  [[nodiscard]] constexpr auto end() const { return m_data.end(); }
+
   void fill_random_spot() {
     auto x = rng::rand(w);
     auto y = rng::rand(h);
@@ -22,7 +27,18 @@ public:
     m_data(x, y) = p;
   }
 
-  inline void log() const { m_data.log(2); }
+  inline void log(bool raw = false) const {
+    if (raw) {
+      m_data.log(2);
+      return;
+    }
+    for (auto row : m_data) {
+      for (auto col : row) {
+        putchar(col);
+      }
+      putchar('\n');
+    }
+  }
 };
 
 constexpr const auto pats = [] {
@@ -78,5 +94,6 @@ extern "C" int main() {
   for (auto i = 0; i < 100; i++) {
     m.fill_random_spot();
   }
+
   m.log();
 }

@@ -3,10 +3,43 @@ import hai;
 import silog;
 
 export namespace eigen {
+class char_map_row {
+  const char *m_begin;
+  unsigned m_size;
+
+public:
+  constexpr char_map_row(const char *b, unsigned s) : m_begin{b}, m_size{s} {}
+
+  [[nodiscard]] constexpr auto begin() const { return m_begin; }
+  [[nodiscard]] constexpr auto end() const { return m_begin + m_size; }
+};
+class char_map_it {
+  const char *m_begin;
+  unsigned m_size;
+
+public:
+  constexpr char_map_it(const char *b, unsigned s) : m_begin{b}, m_size{s} {}
+
+  [[nodiscard]] constexpr bool operator==(const char_map_it &o) const {
+    return m_begin == o.m_begin;
+  }
+  [[nodiscard]] constexpr auto &operator++() {
+    m_begin += m_size;
+    return *this;
+  }
+  [[nodiscard]] constexpr auto operator*() const {
+    return char_map_row{m_begin, m_size};
+  }
+};
+
 class char_map {
   unsigned m_width;
   unsigned m_height;
   hai::array<char> m_data{m_width * m_height};
+
+  [[nodiscard]] constexpr const char *row(unsigned y) const {
+    return &m_data[y * m_width];
+  }
 
 public:
   constexpr char_map(unsigned w, unsigned h) : m_width{w}, m_height{h} {
@@ -22,10 +55,16 @@ public:
     return m_data[y * m_width + x];
   }
 
+  [[nodiscard]] constexpr auto begin() const {
+    return char_map_it{row(0), m_width};
+  }
+  [[nodiscard]] constexpr auto end() const {
+    return char_map_it{row(m_height), m_width};
+  }
+
   inline void log(unsigned y_cols) const {
     for (auto y = 0; y < m_height; y++) {
-      silog::log(silog::info, "%.*d: [%.*s]", y_cols, y + 1, m_width,
-                 &m_data[y * m_width]);
+      silog::log(silog::info, "%.*d: [%.*s]", y_cols, y + 1, m_width, row(y));
     }
   }
 };
