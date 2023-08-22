@@ -1,5 +1,6 @@
 export module poc;
 import eigen;
+import rng;
 import silog;
 
 using namespace eigen;
@@ -9,8 +10,18 @@ class map {
   static constexpr const auto h = 24;
 
   char_map m_data{w, h};
+  const pat_list *m_pats;
 
 public:
+  explicit map(const pat_list *p) : m_pats{p} {}
+
+  void fill_random_spot() {
+    auto x = rng::rand(w);
+    auto y = rng::rand(h);
+    auto p = rng::rand(m_pats->size()) + '0';
+    m_data(x, y) = p;
+  }
+
   inline void log() const { m_data.log(2); }
 };
 
@@ -61,6 +72,11 @@ void dump_possible_connections() {
 }
 
 extern "C" int main() {
-  map m{};
+  rng::seed(69);
+
+  map m{&pats};
+  for (auto i = 0; i < 100; i++) {
+    m.fill_random_spot();
+  }
   m.log();
 }
