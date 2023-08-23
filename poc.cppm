@@ -25,12 +25,7 @@ public:
     m_data(x, y) = p;
   }
 
-  inline void log(bool raw = false) const {
-    if (raw) {
-      m_data.log(2);
-      return;
-    }
-
+  [[nodiscard]] auto expand() const {
     char_map exp{w * 3, h * 3};
     unsigned x = 0;
     unsigned y = 0;
@@ -49,8 +44,10 @@ public:
       x = 0;
       y += 3;
     }
-    exp.log(3);
+    return exp;
   }
+
+  inline void log() const { m_data.log(2); }
 };
 
 constexpr const auto pats = [] {
@@ -107,5 +104,6 @@ extern "C" int main() {
     m.fill_random_spot();
   }
 
-  m.log();
+  // m.log();
+  m.expand().log(3);
 }
