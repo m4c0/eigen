@@ -21,25 +21,47 @@ class map {
 
     return mno::opt{&(*m_pats)[p - '0']};
   }
-  [[nodiscard]] constexpr bool is_valid(unsigned x, unsigned y, auto &&fn) {
-    return pat_at(x, y).map(fn).unwrap(true);
+  [[nodiscard]] constexpr bool is_valid(unsigned max_l, unsigned x, unsigned y,
+                                        auto &&fn) {
+    if (x < 0 || x >= w || y < 0 || y >= h)
+      return false;
+
+    return pat_at(x, y).map(fn).unwrap([&] -> bool {
+      for (const auto &p : *m_pats) {
+        if (!fn(&p))
+          continue;
+
+        if (is_pat_valid(max_l - 1, x, y, &p))
+          return true;
+      }
+      return false;
+    });
   }
 
-  [[nodiscard]] constexpr bool is_pat_valid(unsigned x, unsigned y,
-                                            const pattern *p) {
+  [[nodiscard]] constexpr bool is_pat_valid(unsigned max_l, unsigned x,
+                                            unsigned y, const pattern *p) {
+    if (x < 0 || x >= w || y < 0 || y >= h)
+      return false;
+    if (max_l == 0)
+      return true;
+
     if (pat_at(x, y))
       return false;
 
-    if (!is_valid(x + 1, y, [&](auto o) { return p->can_be_left_of(*o); }))
+    if (!is_valid(max_l, x + 1, y,
+                  [&](auto *o) { return p->can_be_left_of(*o); }))
       return false;
 
-    if (!is_valid(x, y + 1, [&](auto o) { return p->can_be_top_of(*o); }))
+    if (!is_valid(max_l, x, y + 1,
+                  [&](auto *o) { return p->can_be_top_of(*o); }))
       return false;
 
-    if (!is_valid(x - 1, y, [&](auto o) { return o->can_be_left_of(*p); }))
+    if (!is_valid(max_l, x - 1, y,
+                  [&](auto *o) { return o->can_be_left_of(*p); }))
       return false;
 
-    if (!is_valid(x, y - 1, [&](auto o) { return o->can_be_top_of(*p); }))
+    if (!is_valid(max_l, x, y - 1,
+                  [&](auto *o) { return o->can_be_top_of(*p); }))
       return false;
 
     return true;
@@ -57,7 +79,7 @@ public:
       auto y = rng::rand(h - 2) + 1;
       auto p = rng::rand(m_pats->size());
 
-      if (!is_pat_valid(x, y, &(*m_pats)[p]))
+      if (!is_pat_valid(2, x, y, &(*m_pats)[p]))
         continue;
 
       m_data(x, y) = p + '0';
