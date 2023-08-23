@@ -1,5 +1,6 @@
 export module poc;
 import eigen;
+import missingno;
 import rng;
 import silog;
 
@@ -12,6 +13,42 @@ class map {
   char_map m_data{w, h};
   const pat_list *m_pats;
 
+  [[nodiscard]] constexpr mno::opt<const pattern *> pat_at(unsigned x,
+                                                           unsigned y) {
+    auto p = m_data(x, y);
+    if (p == ' ')
+      return {};
+
+    return mno::opt{&(*m_pats)[p - '0']};
+  }
+  [[nodiscard]] constexpr bool is_pat_valid(unsigned x, unsigned y,
+                                            const pattern *p) {
+    if (pat_at(x, y))
+      return false;
+
+    if (!pat_at(x + 1, y)
+             .map([&](auto o) { return p->can_be_left_of(*o); })
+             .unwrap(true))
+      return false;
+
+    if (!pat_at(x, y + 1)
+             .map([&](auto o) { return p->can_be_top_of(*o); })
+             .unwrap(true))
+      return false;
+
+    if (!pat_at(x - 1, y)
+             .map([&](auto o) { return o->can_be_left_of(*p); })
+             .unwrap(true))
+      return false;
+
+    if (!pat_at(x, y - 1)
+             .map([&](auto o) { return o->can_be_top_of(*p); })
+             .unwrap(true))
+      return false;
+
+    return true;
+  }
+
 public:
   explicit map(const pat_list *p) : m_pats{p} {}
 
@@ -19,10 +56,17 @@ public:
   [[nodiscard]] constexpr auto end() const { return m_data.end(); }
 
   void fill_random_spot() {
-    auto x = rng::rand(w);
-    auto y = rng::rand(h);
-    auto p = rng::rand(m_pats->size()) + '0';
-    m_data(x, y) = p;
+    while (true) {
+      auto x = rng::rand(w - 2) + 1;
+      auto y = rng::rand(h - 2) + 1;
+      auto p = rng::rand(m_pats->size());
+
+      if (!is_pat_valid(x, y, &(*m_pats)[p]))
+        continue;
+
+      m_data(x, y) = p + '0';
+      break;
+    }
   }
 
   [[nodiscard]] auto expand() const {
@@ -99,8 +143,10 @@ void dump_possible_connections() {
 extern "C" int main() {
   rng::seed(69);
 
+  silog::log(silog::info, "starting");
+
   map m{&pats};
-  for (auto i = 0; i < 100; i++) {
+  for (auto i = 0; i < 400; i++) {
     m.fill_random_spot();
   }
 
