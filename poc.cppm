@@ -6,10 +6,10 @@ import silog;
 
 using namespace eigen;
 
-class map {
-  static constexpr const auto w = 32;
-  static constexpr const auto h = 24;
+static constexpr const auto w = 32;
+static constexpr const auto h = 24;
 
+class map {
   char_map m_data{w, h};
   const pat_list *m_pats;
 
@@ -73,17 +73,31 @@ public:
   [[nodiscard]] constexpr auto begin() const { return m_data.begin(); }
   [[nodiscard]] constexpr auto end() const { return m_data.end(); }
 
+  [[nodiscard]] bool fill_at(unsigned x, unsigned y) {
+    auto p = rng::rand(m_pats->size());
+
+    for (auto _ : *m_pats) {
+      if (is_pat_valid(3, x, y, &(*m_pats)[p])) {
+        m_data(x, y) = p + '0';
+        return true;
+      }
+      p = (p + 1) % m_pats->size();
+    }
+    return false;
+  }
+
   void fill_random_spot() {
-    while (true) {
-      auto x = rng::rand(w - 2) + 1;
-      auto y = rng::rand(h - 2) + 1;
-      auto p = rng::rand(m_pats->size());
+    auto x = rng::rand(w);
+    auto y = rng::rand(h);
+    for (auto c = 0; c < w * h; c++) {
+      if (fill_at(x, y))
+        return;
 
-      if (!is_pat_valid(2, x, y, &(*m_pats)[p]))
-        continue;
-
-      m_data(x, y) = p + '0';
-      break;
+      x++;
+      if (x >= w) {
+        x = x % w;
+        y = (y + 1) % h;
+      }
     }
   }
 
@@ -164,7 +178,7 @@ extern "C" int main() {
   silog::log(silog::info, "starting");
 
   map m{&pats};
-  for (auto i = 0; i < 400; i++) {
+  for (auto i = 0; i < w * h * 2; i++) {
     m.fill_random_spot();
   }
 
