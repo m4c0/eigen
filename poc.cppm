@@ -97,24 +97,24 @@ public:
 constexpr const auto pats = [] {
   pat_list p{};
 
-  p[0].set_row(0, "   ");
-  p[0].set_row(1, " ..");
-  p[0].set_row(2, " ..");
+  p[0].set_row(0, "...");
+  p[0].set_row(1, ".XX");
+  p[0].set_row(2, ".XX");
   p[0].probability() = 1.f;
 
-  p[1].set_row(0, " ..");
-  p[1].set_row(1, " ..");
-  p[1].set_row(2, " ..");
+  p[1].set_row(0, ".XX");
+  p[1].set_row(1, ".XX");
+  p[1].set_row(2, ".XX");
   p[1].probability() = 1.f;
 
-  p[2].set_row(0, "...");
-  p[2].set_row(1, "...");
-  p[2].set_row(2, "...");
+  p[2].set_row(0, "XXX");
+  p[2].set_row(1, "XXX");
+  p[2].set_row(2, "XXX");
   p[2].probability() = 1.f;
 
-  p[3].set_row(0, "   ");
-  p[3].set_row(1, "   ");
-  p[3].set_row(2, "   ");
+  p[3].set_row(0, "...");
+  p[3].set_row(1, "...");
+  p[3].set_row(2, "...");
   p[3].probability() = 1.f;
 
   (p[4] = p[0]).rotate();
