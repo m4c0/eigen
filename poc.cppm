@@ -21,29 +21,25 @@ class map {
 
     return mno::opt{&(*m_pats)[p - '0']};
   }
+  [[nodiscard]] constexpr bool is_valid(unsigned x, unsigned y, auto &&fn) {
+    return pat_at(x, y).map(fn).unwrap(true);
+  }
+
   [[nodiscard]] constexpr bool is_pat_valid(unsigned x, unsigned y,
                                             const pattern *p) {
     if (pat_at(x, y))
       return false;
 
-    if (!pat_at(x + 1, y)
-             .map([&](auto o) { return p->can_be_left_of(*o); })
-             .unwrap(true))
+    if (!is_valid(x + 1, y, [&](auto o) { return p->can_be_left_of(*o); }))
       return false;
 
-    if (!pat_at(x, y + 1)
-             .map([&](auto o) { return p->can_be_top_of(*o); })
-             .unwrap(true))
+    if (!is_valid(x, y + 1, [&](auto o) { return p->can_be_top_of(*o); }))
       return false;
 
-    if (!pat_at(x - 1, y)
-             .map([&](auto o) { return o->can_be_left_of(*p); })
-             .unwrap(true))
+    if (!is_valid(x - 1, y, [&](auto o) { return o->can_be_left_of(*p); }))
       return false;
 
-    if (!pat_at(x, y - 1)
-             .map([&](auto o) { return o->can_be_top_of(*p); })
-             .unwrap(true))
+    if (!is_valid(x, y - 1, [&](auto o) { return o->can_be_top_of(*p); }))
       return false;
 
     return true;
