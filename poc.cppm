@@ -19,7 +19,7 @@ class map {
     if (p == ' ')
       return {};
 
-    return mno::opt{&(*m_pats)[p - '0']};
+    return mno::opt{&(*m_pats)[p - 'A']};
   }
   [[nodiscard]] constexpr bool is_valid(unsigned max_l, unsigned x, unsigned y,
                                         auto &&fn) {
@@ -78,7 +78,7 @@ public:
 
     for (auto _ : *m_pats) {
       if (is_pat_valid(3, x, y, &(*m_pats)[p])) {
-        m_data(x, y) = p + '0';
+        m_data(x, y) = p + 'A';
         return true;
       }
       p = (p + 1) % m_pats->size();
@@ -108,7 +108,7 @@ public:
     for (auto row : m_data) {
       for (auto col : row) {
         if (col != ' ') {
-          auto &p = (*m_pats)[col - '0'];
+          auto &p = (*m_pats)[col - 'A'];
           for (auto dy = 0; dy < 3; dy++) {
             for (auto dx = 0; dx < 3; dx++) {
               exp(x + dx, y + dy) = p(dx, dy);
@@ -178,10 +178,10 @@ extern "C" int main() {
   silog::log(silog::info, "starting");
 
   map m{&pats};
-  for (auto i = 0; i < w * h * 2; i++) {
+  for (auto i = 0; i < w * h; i++) {
     m.fill_random_spot();
   }
 
-  // m.log();
-  m.expand().log(3);
+  m.log();
+  // m.expand().log(3);
 }
