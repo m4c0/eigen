@@ -6,8 +6,8 @@ import silog;
 
 using namespace eigen;
 
-static constexpr const auto w = 32;
-static constexpr const auto h = 24;
+static constexpr const auto w = 32 * 2;
+static constexpr const auto h = 24 * 2;
 
 class map {
   char_map m_data{w, h};
@@ -73,6 +73,10 @@ public:
   [[nodiscard]] constexpr auto begin() const { return m_data.begin(); }
   [[nodiscard]] constexpr auto end() const { return m_data.end(); }
 
+  [[nodiscard]] constexpr auto &operator()(unsigned x, unsigned y) {
+    return m_data(x, y);
+  }
+
   [[nodiscard]] bool fill_at(unsigned x, unsigned y) {
     auto p = rng::rand(m_pats->size());
 
@@ -84,6 +88,12 @@ public:
       p = (p + 1) % m_pats->size();
     }
     return false;
+  }
+
+  void set_random_spot(unsigned p) {
+    auto x = rng::rand(w - 2) + 1;
+    auto y = rng::rand(h - 2) + 1;
+    m_data(x, y) = p + 'A';
   }
 
   void fill_random_spot() {
@@ -186,10 +196,21 @@ extern "C" int main() {
   silog::log(silog::info, "starting");
 
   map m{&pats};
+  for (auto i = 0; i < w; i++) {
+    m(i, 0) = 2 + 'A';
+    m(i, h - 1) = 2 + 'A';
+  }
+  for (auto i = 0; i < h; i++) {
+    m(0, i) = 2 + 'A';
+    m(w - 1, i) = 2 + 'A';
+  }
+  for (auto i = 0; i < w * 4; i++) {
+    m.set_random_spot(2);
+  }
   for (auto i = 0; i < w * h; i++) {
     m.fill_random_spot();
   }
 
-  m.log();
-  // m.expand().log(3);
+  // m.log();
+  m.expand().log(3);
 }
