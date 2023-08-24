@@ -157,6 +157,14 @@ constexpr const auto pats = [] {
   (p[8] = p[7]).rotate();
   (p[9] = p[8]).rotate();
 
+  p[10].set_row(0, "XXX");
+  p[10].set_row(1, "XXX");
+  p[10].set_row(2, ".XX");
+
+  (p[11] = p[10]).rotate();
+  (p[12] = p[11]).rotate();
+  (p[13] = p[12]).rotate();
+
   return p;
 }();
 
