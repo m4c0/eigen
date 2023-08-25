@@ -67,6 +67,22 @@ class map {
     return true;
   }
 
+  void explode(unsigned cx, unsigned cy) {
+    for (auto y = -1; y <= 1; y++) {
+      auto py = y + cy;
+      if (py < 0 || py >= h)
+        continue;
+
+      for (auto x = -1; x <= 1; x++) {
+        auto px = x + cx;
+        if (px < 0 || px >= w)
+          continue;
+
+        m_data(px, py) = ' ';
+      }
+    }
+  }
+
 public:
   explicit map(const pat_list *p) : m_pats{p} {}
 
@@ -100,8 +116,13 @@ public:
     auto x = rng::rand(w);
     auto y = rng::rand(h);
     for (auto c = 0; c < w * h; c++) {
-      if (fill_at(x, y))
-        return;
+      if (m_data(x, y) == ' ') {
+        if (fill_at(x, y))
+          return;
+
+        explode(x, y);
+        // silog::log(silog::debug, "conflict at %d %d", x, y);
+      }
 
       x++;
       if (x >= w) {
@@ -208,17 +229,6 @@ extern "C" int main() {
     m.set_random_spot(2);
   }
   for (auto i = 0; i < w * h; i++) {
-    m.fill_random_spot();
-  }
-
-  // 69 manual correction
-  for (auto y = -1; y <= 1; y++) {
-    for (auto x = -1; x <= 1; x++) {
-      m(x + 24, y + 2) = ' ';
-      m(x + 45, y + 8) = ' ';
-    }
-  }
-  for (auto i = 0; i < 100; i++) {
     m.fill_random_spot();
   }
 
