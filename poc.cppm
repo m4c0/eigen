@@ -211,6 +211,17 @@ extern "C" int main() {
     m.fill_random_spot();
   }
 
-  // m.log();
-  m.expand().log(3);
+  // 69 manual correction
+  for (auto y = -1; y <= 1; y++) {
+    for (auto x = -1; x <= 1; x++) {
+      m(x + 24, y + 2) = ' ';
+      m(x + 45, y + 8) = ' ';
+    }
+  }
+  for (auto i = 0; i < 100; i++) {
+    m.fill_random_spot();
+  }
+
+  m.log();
+  // m.expand().log(3);
 }
