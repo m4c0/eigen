@@ -146,6 +146,8 @@ public:
 };
 
 class map {
+  static constexpr const auto recursiveness = 3;
+
   char_map m_data;
   const pat_list *m_pats;
 
@@ -241,7 +243,7 @@ public:
     auto p = rng::rand(m_pats->size());
 
     for (auto _ : *m_pats) {
-      if (is_pat_valid(3, x, y, &(*m_pats)[p])) {
+      if (is_pat_valid(recursiveness, x, y, &(*m_pats)[p])) {
         m_data(x, y) = p;
         return true;
       }
