@@ -6,12 +6,16 @@ import silog;
 
 using namespace eigen;
 
-static constexpr const auto w = 32 * 2;
-static constexpr const auto h = 24 * 2;
-
 class map {
-  char_map m_data{w, h};
+  char_map m_data;
   const pat_list *m_pats;
+
+  [[nodiscard]] constexpr auto w() const noexcept { return m_data.width(); }
+  [[nodiscard]] constexpr auto h() const noexcept { return m_data.height(); }
+
+  [[nodiscard]] constexpr auto oob(unsigned x, unsigned y) const noexcept {
+    return (x < 0 || x >= w() || y < 0 || y >= h());
+  }
 
   [[nodiscard]] constexpr mno::opt<const pattern *> pat_at(unsigned x,
                                                            unsigned y) {
@@ -23,7 +27,7 @@ class map {
   }
   [[nodiscard]] constexpr bool is_valid(unsigned max_l, unsigned x, unsigned y,
                                         auto &&fn) {
-    if (x < 0 || x >= w || y < 0 || y >= h)
+    if (oob(x, y))
       return false;
 
     return pat_at(x, y).map(fn).unwrap([&] -> bool {
@@ -40,7 +44,7 @@ class map {
 
   [[nodiscard]] constexpr bool is_pat_valid(unsigned max_l, unsigned x,
                                             unsigned y, const pattern *p) {
-    if (x < 0 || x >= w || y < 0 || y >= h)
+    if (oob(x, y))
       return false;
     if (max_l == 0)
       return true;
@@ -70,12 +74,12 @@ class map {
   void explode(unsigned cx, unsigned cy) {
     for (auto y = -1; y <= 1; y++) {
       auto py = y + cy;
-      if (py < 0 || py >= h)
+      if (py < 0 || py >= h())
         continue;
 
       for (auto x = -1; x <= 1; x++) {
         auto px = x + cx;
-        if (px < 0 || px >= w)
+        if (px < 0 || px >= w())
           continue;
 
         m_data(px, py) = ' ';
@@ -84,7 +88,8 @@ class map {
   }
 
 public:
-  explicit map(const pat_list *p) : m_pats{p} {}
+  explicit map(const pat_list *p, unsigned w, unsigned h)
+      : m_pats{p}, m_data{w, h} {}
 
   [[nodiscard]] constexpr auto begin() const { return m_data.begin(); }
   [[nodiscard]] constexpr auto end() const { return m_data.end(); }
@@ -107,15 +112,15 @@ public:
   }
 
   void set_random_spot(unsigned p) {
-    auto x = rng::rand(w - 2) + 1;
-    auto y = rng::rand(h - 2) + 1;
+    auto x = rng::rand(w() - 2) + 1;
+    auto y = rng::rand(h() - 2) + 1;
     m_data(x, y) = p + 'A';
   }
 
   void fill_random_spot() {
-    auto x = rng::rand(w);
-    auto y = rng::rand(h);
-    for (auto c = 0; c < w * h; c++) {
+    auto x = rng::rand(w());
+    auto y = rng::rand(h());
+    for (auto c = 0; c < w() * h(); c++) {
       if (m_data(x, y) == ' ') {
         if (fill_at(x, y))
           return;
@@ -125,15 +130,15 @@ public:
       }
 
       x++;
-      if (x >= w) {
-        x = x % w;
-        y = (y + 1) % h;
+      if (x >= w()) {
+        x = x % w();
+        y = (y + 1) % h();
       }
     }
   }
 
   [[nodiscard]] auto expand() const {
-    char_map exp{w * 3, h * 3};
+    char_map exp{w() * 3, h() * 3};
     unsigned x = 0;
     unsigned y = 0;
     for (auto row : m_data) {
@@ -156,6 +161,9 @@ public:
 
   inline void log() const { m_data.log(2); }
 };
+
+static constexpr const auto w = 32 * 2;
+static constexpr const auto h = 24 * 2;
 
 constexpr const auto pats = [] {
   pat_list p{};
@@ -216,7 +224,7 @@ extern "C" int main() {
 
   silog::log(silog::info, "starting");
 
-  map m{&pats};
+  map m{&pats, w, h};
   for (auto i = 0; i < w; i++) {
     m(i, 0) = 2 + 'A';
     m(i, h - 1) = 2 + 'A';

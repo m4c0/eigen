@@ -48,6 +48,9 @@ public:
     }
   }
 
+  [[nodiscard]] constexpr auto width() const noexcept { return m_width; }
+  [[nodiscard]] constexpr auto height() const noexcept { return m_height; }
+
   [[nodiscard]] constexpr auto &operator()(unsigned x, unsigned y) {
     return m_data[y * m_width + x];
   }
