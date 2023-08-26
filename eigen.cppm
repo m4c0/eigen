@@ -66,26 +66,6 @@ public:
   [[nodiscard]] constexpr auto end() const {
     return char_map_it{row(m_height), m_width};
   }
-
-  inline void log(unsigned y_cols) const {
-    char buf[1024];
-    for (char &c : buf)
-      c = ' ';
-    for (auto x = 1; x <= m_width / 10; x++) {
-      buf[x * 10] = '0' + x;
-    }
-    silog::log(silog::info, "%*s  .%.*s.", y_cols, "", m_width, buf);
-    for (char &c : buf)
-      c = ' ';
-    for (auto x = 0; x <= m_width; x++) {
-      buf[x] = '0' + x % 10;
-    }
-    silog::log(silog::info, "%*s  .%.*s.", y_cols, "", m_width, buf);
-
-    for (auto y = 0; y < m_height; y++) {
-      silog::log(silog::info, "%.*d: [%.*s]", y_cols, y, m_width, row(y));
-    }
-  }
 };
 
 class pattern {
@@ -315,7 +295,5 @@ public:
     }
     return exp;
   }
-
-  inline void log() const { m_data.log(2); }
 };
 } // namespace eigen

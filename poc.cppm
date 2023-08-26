@@ -62,6 +62,29 @@ void dump_possible_connections() {
   }
 }
 
+void dump(const map &m) {
+  constexpr const auto y_cols = 2;
+
+  char buf[1024];
+  for (char &c : buf)
+    c = ' ';
+  for (auto x = 1; x <= w / 10; x++) {
+    buf[x * 10] = '0' + x;
+  }
+  silog::log(silog::info, "%*s  .%.*s.", y_cols, "", w, buf);
+  for (char &c : buf)
+    c = ' ';
+  for (auto x = 0; x <= w; x++) {
+    buf[x] = '0' + x % 10;
+  }
+  silog::log(silog::info, "%*s  .%.*s.", y_cols, "", w, buf);
+
+  unsigned y = 0;
+  for (auto row : m) {
+    silog::log(silog::info, "%.*d: [%.*s]", y_cols, y++, w, row.begin());
+  }
+}
+
 extern "C" int main() {
   rng::seed(69);
 
@@ -83,6 +106,6 @@ extern "C" int main() {
     m.fill_random_spot();
   }
 
-  m.log();
+  dump(m);
   // m.expand().log(3);
 }
