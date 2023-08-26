@@ -275,27 +275,5 @@ public:
       }
     }
   }
-
-  [[nodiscard]] auto expand() const {
-    char_map exp{w() * 3, h() * 3};
-    unsigned x = 0;
-    unsigned y = 0;
-    for (auto row : m_data) {
-      for (auto col : row) {
-        if (col != nil) {
-          auto &p = (*m_pats)[col];
-          for (auto dy = 0; dy < 3; dy++) {
-            for (auto dx = 0; dx < 3; dx++) {
-              exp(x + dx, y + dy) = p(dx, dy);
-            }
-          }
-        }
-        x += 3;
-      }
-      x = 0;
-      y += 3;
-    }
-    return exp;
-  }
 };
 } // namespace eigen
