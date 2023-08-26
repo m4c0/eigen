@@ -160,7 +160,7 @@ class map {
     if (p == ' ')
       return {};
 
-    return mno::opt{&(*m_pats)[p - 'A']};
+    return mno::opt{&(*m_pats)[p]};
   }
   [[nodiscard]] constexpr bool is_valid(unsigned max_l, unsigned x, unsigned y,
                                         auto &&fn) {
@@ -240,7 +240,7 @@ public:
 
     for (auto _ : *m_pats) {
       if (is_pat_valid(3, x, y, &(*m_pats)[p])) {
-        m_data(x, y) = p + 'A';
+        m_data(x, y) = p;
         return true;
       }
       p = (p + 1) % m_pats->size();
@@ -251,7 +251,7 @@ public:
   void set_random_spot(unsigned p) {
     auto x = rng::rand(w() - 2) + 1;
     auto y = rng::rand(h() - 2) + 1;
-    m_data(x, y) = p + 'A';
+    m_data(x, y) = p;
   }
 
   void fill_random_spot() {
@@ -281,7 +281,7 @@ public:
     for (auto row : m_data) {
       for (auto col : row) {
         if (col != ' ') {
-          auto &p = (*m_pats)[col - 'A'];
+          auto &p = (*m_pats)[col];
           for (auto dy = 0; dy < 3; dy++) {
             for (auto dx = 0; dx < 3; dx++) {
               exp(x + dx, y + dy) = p(dx, dy);

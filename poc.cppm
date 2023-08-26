@@ -81,7 +81,12 @@ void dump(const map &m) {
 
   unsigned y = 0;
   for (auto row : m) {
-    silog::log(silog::info, "%.*d: [%.*s]", y_cols, y++, w, row.begin());
+    auto col = row.begin();
+    for (auto &c : buf) {
+      c = 'A' + *col++;
+    }
+
+    silog::log(silog::info, "%.*d: [%.*s]", y_cols, y++, w, buf);
   }
 }
 
@@ -92,12 +97,12 @@ extern "C" int main() {
 
   map m{&pats, w, h};
   for (auto i = 0; i < w; i++) {
-    m(i, 0) = 2 + 'A';
-    m(i, h - 1) = 2 + 'A';
+    m(i, 0) = 2;
+    m(i, h - 1) = 2;
   }
   for (auto i = 0; i < h; i++) {
-    m(0, i) = 2 + 'A';
-    m(w - 1, i) = 2 + 'A';
+    m(0, i) = 2;
+    m(w - 1, i) = 2;
   }
   for (auto i = 0; i < w * 4; i++) {
     m.set_random_spot(2);
