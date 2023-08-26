@@ -1,3 +1,6 @@
+module;
+#include <fstream>
+
 export module poc;
 import eigen;
 import rng;
@@ -90,6 +93,27 @@ void dump(const map &m) {
   }
 }
 
+void dump_image(const map &m) {
+  std::ofstream f{"out/test.pgm"};
+  if (!f)
+    throw 0;
+
+  f << "P2" << std::endl;
+  f << w * 3 << " " << h * 3 << " 2" << std::endl;
+  for (auto row : m) {
+    for (auto py = 0; py < 3; py++) {
+      for (auto col : row) {
+        for (auto px = 0; px < 3; px++) {
+          auto c = pats[col](px, py);
+          f << (c == 'X' ? 2 : 1);
+          f << " ";
+        }
+      }
+      f << std::endl;
+    }
+  }
+}
+
 extern "C" int main() {
   rng::seed(69);
 
@@ -112,5 +136,5 @@ extern "C" int main() {
   }
 
   dump(m);
-  // m.expand().log(3);
+  // dump_image(m);
 }
