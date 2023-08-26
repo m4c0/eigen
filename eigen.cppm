@@ -5,6 +5,8 @@ import rng;
 import silog;
 
 export namespace eigen {
+inline constexpr const char nil = 0xFF;
+
 class char_map_row {
   const char *m_begin;
   unsigned m_size;
@@ -46,7 +48,7 @@ class char_map {
 public:
   constexpr char_map(unsigned w, unsigned h) : m_width{w}, m_height{h} {
     for (auto &c : m_data) {
-      c = ' ';
+      c = nil;
     }
   }
 
@@ -157,7 +159,7 @@ class map {
   [[nodiscard]] constexpr mno::opt<const pattern *> pat_at(unsigned x,
                                                            unsigned y) {
     auto p = m_data(x, y);
-    if (p == ' ')
+    if (p == nil)
       return {};
 
     return mno::opt{&(*m_pats)[p]};
@@ -219,7 +221,7 @@ class map {
         if (px < 0 || px >= w())
           continue;
 
-        m_data(px, py) = ' ';
+        m_data(px, py) = nil;
       }
     }
   }
@@ -258,7 +260,7 @@ public:
     auto x = rng::rand(w());
     auto y = rng::rand(h());
     for (auto c = 0; c < w() * h(); c++) {
-      if (m_data(x, y) == ' ') {
+      if (m_data(x, y) == nil) {
         if (fill_at(x, y))
           return;
 
@@ -280,7 +282,7 @@ public:
     unsigned y = 0;
     for (auto row : m_data) {
       for (auto col : row) {
-        if (col != ' ') {
+        if (col != nil) {
           auto &p = (*m_pats)[col];
           for (auto dy = 0; dy < 3; dy++) {
             for (auto dx = 0; dx < 3; dx++) {
