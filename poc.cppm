@@ -120,20 +120,11 @@ extern "C" int main() {
   silog::log(silog::info, "starting");
 
   map m{&pats, w, h};
-  for (auto i = 0; i < w; i++) {
-    m(i, 0) = 2;
-    m(i, h - 1) = 2;
-  }
-  for (auto i = 0; i < h; i++) {
-    m(0, i) = 2;
-    m(w - 1, i) = 2;
-  }
+  m.draw_border(2);
   for (auto i = 0; i < w * 4; i++) {
     m.set_random_spot(2);
   }
-  for (auto i = 0; i < w * h; i++) {
-    m.fill_random_spot();
-  }
+  m.fill();
 
   dump(m);
   // dump_image(m);

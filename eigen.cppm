@@ -277,5 +277,21 @@ public:
       }
     }
   }
+
+  void fill() {
+    for (auto i = 0; i < w() * h(); i++) {
+      fill_random_spot();
+    }
+  }
+  void draw_border(unsigned p) {
+    for (auto i = 0; i < w(); i++) {
+      m_data(i, 0) = p;
+      m_data(i, h() - 1) = p;
+    }
+    for (auto i = 0; i < h(); i++) {
+      m_data(0, i) = p;
+      m_data(w() - 1, i) = p;
+    }
+  }
 };
 } // namespace eigen
